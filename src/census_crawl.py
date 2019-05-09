@@ -10,9 +10,14 @@ from ftplib import FTP
 class censusFtp():
     """This class is my first time working with python's ftplib - or ftp
     connections programatically at all. It's rough, and it's not pretty, but it
-    does what it's supposed to do, and I learned my FTP basics by writing it. 
+    does what it's supposed to do, and I learned my FTP basics by writing it.
     """
     def __init__(self):
+        """self.sav_loc is the location where the geospatial data is to be
+        stored once I've downloaded it.
+        self.level is there to keep track of which directory level we're in on
+        the USGS server.
+        """
         self.save_loc = '/Users/tc/Documents/projects/geospatial_data/assets/2018_PL'
         self.dir_out = []
         self.level = 0
@@ -20,9 +25,16 @@ class censusFtp():
         self.file_path_list = []
 
     def ftp_callback(self, x):
+        """this function is fed to ftp.retrlines() when our directory_crawl()
+        function wants to know what the ftp server is telling us is in a
+        specific directory. Appends the results to self.dir_out.
+        """
         self.dir_out.append(x)
 
     def back_one(self, ftp):
+        """Moves our crawler back up one level in the server. Removes the last
+        directory from the ftp address we're querying. 
+        """
         print('Moving back up one level')
         self.level -= 1
         cur_dir = ftp.pwd()
