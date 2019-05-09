@@ -33,7 +33,7 @@ class censusFtp():
 
     def back_one(self, ftp):
         """Moves our crawler back up one level in the server. Removes the last
-        directory from the ftp address we're querying. 
+        directory from the ftp address we're querying.
         """
         print('Moving back up one level')
         self.level -= 1
@@ -77,13 +77,20 @@ class censusFtp():
         print('Current directory: {}'.format(ftp.pwd()))
         print('Entering sub directory {}'.format(sd))
         print('Level {}: '.format(self.level))
-        ftp.cwd(sd)
-        self.level += 1
-        ftp.retrlines('LIST', self.ftp_callback)
+        try:
+            ftp.cwd(sd)
+            self.level += 1
+        except:
+            print("Could not change to directory: {}".format(sd))
+        try:
+            ftp.retrlines('LIST', self.ftp_callback)
+        except:
+            print("Could not retrieve page")
         file_types = [[re.split(' +',i)[j] for j in [1, -1]] for i in self.dir_out]
         self.dir_out = []
         for i in file_types:
             ftp = self.dir_or_file(i, ftp)
+            # Pause before more querying, just to be courteous.
             time.sleep(1.5)
         return ftp
 
@@ -92,9 +99,13 @@ class censusFtp():
         self.sub_dirs = ftp.nlst()
         for sd in self.sub_dirs[5:]:
             ftp = self.directory_crawl(sd, ftp)
-            ftp.cwd('/geo/tiger/TIGER2018PLtest')
-            time.sleep(3)
-        ftp.quit()
+            try:
+                ftp.cwd('/geo/tiger/TIGER2018PLtest')
+                # Pause before more querying, just to be courteous.
+                time.sleep(3)
+            except:
+                print("Coult not connect to FTP server.")
+                ftp.quit()
 
 def main():
     ftp = FTP('ftp2.census.gov')
