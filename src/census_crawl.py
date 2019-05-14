@@ -25,14 +25,16 @@ class censusFtp():
         self.file_path_list = []
 
     def ftp_callback(self, x):
-        """this function is fed to ftp.retrlines() when our directory_crawl()
-        function wants to know what the ftp server is telling us is in a
-        specific directory. Appends the results to self.dir_out.
+        """If we give the function ftp.retrlines() the command 'LIST', it will
+        retrieve a list of files and the information about those files
+        (https://docs.python.org/3/library/ftplib.html). The default behavior is
+        to print this list to sys.stdout. This callback replaces that behavior,
+        instead appending the list of files/file information to self.dir_out.
         """
         self.dir_out.append(x)
 
     def back_one(self, ftp):
-        """Moves our crawler back up one level in the server by removing the
+        """Moves the crawler back up one level in the server by removing the
         last directory from the ftp address we're querying.
         """
         print('Moving back up one level')
@@ -47,16 +49,16 @@ class censusFtp():
 
     def dir_or_file(self, i, ftp):
         """Input:
-            i: a list in which i[1] is an address, and i[0] tells us what the
-                address is. If i[0] is 2, the address points to another
-                directory. if i[0] is 1, the address points to a file, and
-                we'll want to download it.
+            i: a list in which i[1] is the name of either a directory or a file
+                contained in the current directory, and i[0] indicates which it
+                is. If i[0] is 2, i[1] is the name of a directory. if i[0] is 1,
+                then i[1] is the name of a file, and we'll want to download it.
             ftp: an instance of the FTP() class
 
-        This function checks the address in i. If it is a directory, it passes i
-        and the ftp instance to the dir_handler() function. If it is a file,
-        it passes it to the file_handler() function so that its contents can
-        be downloaded. 
+        This function checks file/directory indicated by i. If i[1] is the name
+        of a directory, it passes i and the ftp instance to the dir_handler()
+        function. If it is a file, it passes it to the file_handler() function
+        so that its contents can be downloaded.
         """
         if i[0] == '2':
             return self.dir_handler(i, ftp)
@@ -64,6 +66,26 @@ class censusFtp():
             return self.file_handler(i, ftp)
 
     def dir_handler(self, i, ftp):
+        """Input:
+            i: a list in which i[1] is the name of an item in the current
+                directory, and i[0] tells us wheether it is a directory or a
+                file. Because this function receives i from the function
+                dir_or_file(), the value of i[0] should always be 2, indicating
+                a directory.
+            ftp: an instance of the FTP() class
+
+        This function will append the name of the directory contained in i[1] to
+        self.dir_path_list, which is a list in which each item is a directory.
+        These are in order, such that dir_path_list[0] is the first directory
+        and so on. Each item in the list is a sub directory of the item
+        preceeding it in the list.
+        This function calls the directory_crawl() function which in turn calls
+        this function again, making the behavior of the censusFTP() crawler
+        recursive. It go through the directories and sub directories of the in a
+        depth-first search, downloading all of the files contained in the FTP
+        server directory we point it at (in this case TIGER2018PLtest).
+
+        """
         print('Found sub directory: {}'.format(i[1]))
         self.dir_path_list.append(os.path.join(ftp.pwd(),i[1]))
         time.sleep(1.5)
