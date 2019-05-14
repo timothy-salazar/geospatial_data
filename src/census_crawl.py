@@ -32,8 +32,8 @@ class censusFtp():
         self.dir_out.append(x)
 
     def back_one(self, ftp):
-        """Moves our crawler back up one level in the server. Removes the last
-        directory from the ftp address we're querying.
+        """Moves our crawler back up one level in the server by removing the
+        last directory from the ftp address we're querying.
         """
         print('Moving back up one level')
         self.level -= 1
@@ -46,32 +46,52 @@ class censusFtp():
         return ftp
 
     def dir_or_file(self, i, ftp):
+        """Input:
+            i: a list in which i[1] is an address, and i[0] tells us what the
+                address is. If i[0] is 2, the address points to another
+                directory. if i[0] is 1, the address points to a file, and
+                we'll want to download it.
+            ftp: an instance of the FTP() class
+
+        This function checks the address in i. If it is a directory, it passes i
+        and the ftp instance to the dir_handler() function. If it is a file,
+        it passes it to the file_handler() function so that its contents can
+        be downloaded. 
+        """
         if i[0] == '2':
-            print('Found sub directory: {}'.format(i[1]))
-            self.dir_path_list.append(os.path.join(ftp.pwd(),i[1]))
-            time.sleep(1.5)
-            ftp = self.directory_crawl(i[1], ftp)
-            ftp = self.back_one(ftp)
-            return ftp
+            return self.dir_handler(i, ftp)
         elif i[0] == '1':
-            print('Found file: {}'.format(i[1]))
-            self.file_path_list.append(os.path.join(ftp.pwd(),i[1]))
-            cmd = 'RETR {}'.format(i[1])
-            dir_path = ftp.pwd().split('/')[4:]
-            save_file = os.path.join(self.save_loc, *dir_path, i[1])
-            split_dir = os.path.split(save_file)[0]
-            if not os.path.isdir(split_dir):
-                print('Making sub directory: {}'.format(split_dir))
-                os.makedirs(split_dir)
-            else:
-                print('Sub directory exists.')
-            if not os.path.exists(save_file):
-                print('Saving file: {}'.format(save_file))
-                ftp.retrbinary(cmd, open(save_file, 'wb').write)
-                return ftp
-            else:
-                print('File {} already exists.'.format(save_file))
-                return ftp
+            return self.file_handler(i, ftp)
+
+    def dir_handler(self, i, ftp):
+        print('Found sub directory: {}'.format(i[1]))
+        self.dir_path_list.append(os.path.join(ftp.pwd(),i[1]))
+        time.sleep(1.5)
+        ftp = self.directory_crawl(i[1], ftp)
+        ftp = self.back_one(ftp)
+        return ftp
+
+    def file_handler(self, i, ftp):
+        print('Found file: {}'.format(i[1]))
+        self.file_path_list.append(os.path.join(ftp.pwd(),i[1]))
+        cmd = 'RETR {}'.format(i[1])
+        dir_path = ftp.pwd().split('/')[4:]
+        save_file = os.path.join(self.save_loc, *dir_path, i[1])
+        split_dir = os.path.split(save_file)[0]
+        if not os.path.isdir(split_dir):
+            print('Making sub directory: {}'.format(split_dir))
+            os.makedirs(split_dir)
+        else:
+            print('Sub directory exists.')
+        if not os.path.exists(save_file):
+            print('Saving file: {}'.format(save_file))
+            ftp.retrbinary(cmd, open(save_file, 'wb').write)
+            return ftp
+        else:
+            print('File {} already exists.'.format(save_file))
+            return ftp
+
+
 
     def directory_crawl(self, sd, ftp):
         print('Current directory: {}'.format(ftp.pwd()))
