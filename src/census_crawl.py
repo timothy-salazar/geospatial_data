@@ -18,7 +18,7 @@ class censusFtp():
         self.level is there to keep track of which directory level we're in on
         the USGS server.
         """
-        self.save_loc = '/Users/tc/Documents/projects/geospatial_data/assets/2018_PL'
+        self.save_loc = '../assets/2018_PL'
         self.dir_out = []
         self.level = 0
         self.dir_path_list = []
@@ -55,9 +55,9 @@ class censusFtp():
                 then i[1] is the name of a file, and we'll want to download it.
             ftp: an instance of the FTP() class
 
-        This function checks file/directory indicated by i. If i[1] is the name
+        This method checks file/directory indicated by i. If i[1] is the name
         of a directory, it passes i and the ftp instance to the dir_handler()
-        function. If it is a file, it passes it to the file_handler() function
+        method. If it is a file, it passes it to the file_handler() method
         so that its contents can be downloaded.
         """
         if i[0] == '2':
@@ -69,22 +69,21 @@ class censusFtp():
         """Input:
             i: a list in which i[1] is the name of an item in the current
                 directory, and i[0] tells us wheether it is a directory or a
-                file. Because this function receives i from the function
+                file. Because this method receives i from the method
                 dir_or_file(), the value of i[0] should always be 2, indicating
                 a directory.
             ftp: an instance of the FTP() class
 
-        This function will append the name of the directory contained in i[1] to
+        This method will append the name of the directory contained in i[1] to
         self.dir_path_list, which is a list in which each item is a directory.
         These are in order, such that dir_path_list[0] is the first directory
         and so on. Each item in the list is a sub directory of the item
         preceeding it in the list.
-        This function calls the directory_crawl() function which in turn calls
-        this function again, making the behavior of the censusFTP() crawler
+        This method calls the directory_crawl() method which in turn calls
+        this method again, making the behavior of the censusFTP() crawler
         recursive. It go through the directories and sub directories of the in a
         depth-first search, downloading all of the files contained in the FTP
         server directory we point it at (in this case TIGER2018PLtest).
-
         """
         print('Found sub directory: {}'.format(i[1]))
         self.dir_path_list.append(os.path.join(ftp.pwd(),i[1]))
@@ -94,6 +93,23 @@ class censusFtp():
         return ftp
 
     def file_handler(self, i, ftp):
+        """Input:
+            i: a list in which i[1] is the name of an item in the current
+                directory, and i[0] tells us wheether it is a directory or a
+                file. Because this method receives i from the method
+                dir_or_file(), the value of i[0] should always be 1, indicating
+                a file that we will want to download.
+            ftp: an instance of the FTP() class
+
+        This method will take the name of a file in the current FTP directory
+        from i, append it to the current ftp file path, and then pass the
+        resulting address to the ftp.retrbinary() function.
+
+        It copies the directory structure that it finds on the FTP server to the
+        local self.save_loc location, and gives the file the same name given in
+        the FTP server. It checks to see if the save location exists, and if
+        it doesn't it will create the directory.
+        """
         print('Found file: {}'.format(i[1]))
         self.file_path_list.append(os.path.join(ftp.pwd(),i[1]))
         cmd = 'RETR {}'.format(i[1])
