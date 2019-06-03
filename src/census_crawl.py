@@ -132,6 +132,21 @@ class censusFtp():
 
 
     def directory_crawl(self, sd, ftp):
+        """Input:
+            sd: the name of a sub directory which is accessible from the
+                directory which the ftp object is currently pointed to, so that
+                a simple ftp.cwd(sd) will change to the new directory.
+            ftp: an instance of the FTP() class
+
+        Given a sub directory sd, this method will change to the sub directory,
+        use the ftp.retrlines() function to retrieve a list of entities in the
+        new sub directory, and then parse the output of this function -
+        splitting each line into a name and type (file or directory). The
+        resulting list [name, type] is then appended to self.file_types.
+
+        Once self.file_types has been populated, this method goes through the
+        list and passes each [name, type] sub-list to the dir_or_file() method.
+        """
         print('Current directory: {}'.format(ftp.pwd()))
         print('Entering sub directory {}'.format(sd))
         print('Level {}: '.format(self.level))
@@ -143,7 +158,7 @@ class censusFtp():
         try:
             ftp.retrlines('LIST', self.ftp_callback)
         except:
-            print("Could not retrieve page")
+            print("Could not retrieve contents")
         file_types = [[re.split(' +',i)[j] for j in [1, -1]] for i in self.dir_out]
         self.dir_out = []
         for i in file_types:
@@ -153,6 +168,12 @@ class censusFtp():
         return ftp
 
     def get_census_data(self, ftp):
+        """Input:
+            ftp: an instance of the FTP() class
+
+        This method gets a list of sub-directories within the initial directory
+        and passes them to the directory_crawl() method. 
+        """
         print('Connection established.')
         self.sub_dirs = ftp.nlst()
         for sd in self.sub_dirs[5:]:
