@@ -149,8 +149,6 @@ class censusFtp():
             print('File {} already exists.'.format(save_file))
             return ftp
 
-
-
     def directory_crawl(self, sd, ftp):
         """Input:
             sd: the name of a sub directory which is accessible from the
@@ -196,7 +194,7 @@ class censusFtp():
         """
         print('Connection established.')
         self.sub_dirs = ftp.nlst()
-        for sd in self.sub_dirs[5:]:
+        for sd in self.sub_dirs:
             ftp = self.directory_crawl(sd, ftp)
             try:
                 ftp.cwd(self.ftp_dir)
