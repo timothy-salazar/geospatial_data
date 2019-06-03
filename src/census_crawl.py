@@ -202,7 +202,7 @@ class censusFtp():
                 time.sleep(3)
             except:
                 print("Coult not connect to FTP server.")
-                ftp.quit()
+        ftp.quit()
 
 def main():
     ftp = FTP('ftp2.census.gov')
