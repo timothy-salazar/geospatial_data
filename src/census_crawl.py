@@ -12,13 +12,33 @@ class censusFtp():
     connections programatically at all. It's rough, and it's not pretty, but it
     does what it's supposed to do, and I learned my FTP basics by writing it.
     """
-    def __init__(self):
-        """self.sav_loc is the location where the geospatial data is to be
-        stored once I've downloaded it.
-        self.level is there to keep track of which directory level we're in on
-        the USGS server.
+    def __init__(self, save_loc='../assets/2018_PL',
+                ftp_dir='geo/tiger/TIGER2018PLtest'):
+        """Inputs:
+            save_loc: string - the path to the location where the user wants the
+                geospatial data to be saved.
+            ftp_dir: string - the path to the directory within the USGS FTP
+                server which the user would like to save data from
+
+        Other:
+            self.dir_out: list - this is used to capture the output of the
+                ftp.retrlines() function, which is invoked in the
+                directory_crawl() method.
+
+            self.level: int - this is used to keep track of which directory
+                level within the USGS FTP server our program is in. It gets
+                printed out, but it isn't used by any of the methods. It's
+                there for debugging purposes.
+
+            self.dir_path_list: list - when our crawler finds a sub-directory,
+                the dir_handler() method appends the path to the directory to
+                this list.
+
+            self.file_path_list: list - when our crawler finds a file, the
+                file_handler() method appends the path to the file to this list.
         """
-        self.save_loc = '../assets/2018_PL'
+        self.save_loc = sav_loc
+        self.ftp_dir = ftp_dir
         self.dir_out = []
         self.level = 0
         self.dir_path_list = []
@@ -172,14 +192,14 @@ class censusFtp():
             ftp: an instance of the FTP() class
 
         This method gets a list of sub-directories within the initial directory
-        and passes them to the directory_crawl() method. 
+        and passes them to the directory_crawl() method.
         """
         print('Connection established.')
         self.sub_dirs = ftp.nlst()
         for sd in self.sub_dirs[5:]:
             ftp = self.directory_crawl(sd, ftp)
             try:
-                ftp.cwd('/geo/tiger/TIGER2018PLtest')
+                ftp.cwd(self.ftp_dir)
                 # Pause before more querying, just to be courteous.
                 time.sleep(3)
             except:
