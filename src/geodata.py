@@ -6,32 +6,27 @@ import psycopg2
 from collections import Counter
 
 
-def get_csv_list(asset_path):
-    """returns the list of csv documents in a given asset sub-directory,
-    assumes a  directory structure of:
-        - project
-            - src
-                - this script
-            - assets
-                - sub-directory
-                    - various .csv files
-    Input:
-        asset_path (string): the name of a sub-directory within "assets"
+def get_csv_list(csv_dir):
+    """Input:
+        csv_dir: string - the path to a directory.
     Output:
         A list containing the relative paths to every .csv file in the given
         subdirectory
     """
-    csv_dir = os.path.join(os.path.split(os.getcwd())[0], 'assets', asset_path)
-    dir_list = [os.path.join(csv_dir, i)
-                for i in os.listdir(csv_dir) if i[-3:]=='csv']
+    try:
+        dir_list = [os.path.join(csv_dir, i)
+                    for i in os.listdir(csv_dir) if i[-3:]=='csv']
+    except FileNotFoundError:
+        print('Error in get_csv_list: given directory path does not exist.')
     # this last line is only here to make the paths shorter.
     return [os.path.relpath(i) for i in dir_list]
 
-def make_geoid(df,c_vals=None, g='geo'):
+def make_geoid(df, c_vals=None, g='geo'):
     """This function takes a column "g" from a given dataframe which is
     formatted as:
-        "05000US" followed by the 2 digit Fips State Code and then the 3 digit
-        Fips County Code.
+        - "05000US"
+        - followed by the 2 digit Fips State Code
+        - followed by the 3 digit Fips County Code
     and it transforms the values into GEOIDs that match the map files by
     combining the state and county Fips codes.
     map files downloaded from:
