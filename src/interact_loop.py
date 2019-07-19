@@ -11,22 +11,39 @@ class interLoop():
                     user once before the loop begins. This can be an explanation
                     of the program, a list of commands, or a prompt for specific
                     input.
-                watch_list: list. This is a list of lists which has the
-                    following format:
-                        watch_list[0]: list of strings of length n. Each entry
-                            in the list is a keyword that will be compared to
-                            the user provided input. For example: "h" might
-                            be a valid keyword indicating that the user wants
-                            help, and a list of options should be printed. Other
-                            keywords might indicate specific methods within the
-                            parent object.
-                        watch_list[1]: a list of functions or methods that
-                            should be invoked in response to the corresponding
-                            keyword in watch_list[0]
-                        watch_list[2]: a list of strings of length n. Each entry
-                            is a short description of the function in
-                            watch_list[1], including what kind of input this
-                            function expects and any additional options.
+                watch_list: dict. This is a dictionary with n key-value pairs,
+                    where n is the number of keywords our loop watches out for.
+                        key: string. If the user provided input matches one of
+                            the keys in this dictionary, the loop will take the
+                            appropriate action (detailed below). For example,
+                            "h" might be a valid keyword indicting that the user
+                            wants help, and a list of options should be printed.
+                            Other keywords might indicate specific methods
+                            within the parent object.
+                        value: a list containing the following:
+                            value[0]: a function or method that should be
+                                invoked in response to the user providing this
+                                value's key as an input.
+                            value[1]: string. A short description of the
+                                function or method in value[0], including
+                                what kind of input this function expects and
+                                any additional options.
+                                
+
+                        # watch_list[0]: list of strings of length n. Each entry
+                        #     in the list is a keyword that will be compared to
+                        #     the user provided input. For example: "h" might
+                        #     be a valid keyword indicating that the user wants
+                        #     help, and a list of options should be printed. Other
+                        #     keywords might indicate specific methods within the
+                        #     parent object.
+                        # watch_list[1]: a list of functions or methods that
+                        #     should be invoked in response to the corresponding
+                        #     keyword in watch_list[0]
+                        # watch_list[2]: a list of strings of length n. Each entry
+                        #     is a short description of the function in
+                        #     watch_list[1], including what kind of input this
+                        #     function expects and any additional options.
                         # inplement later. Let's not get bogged down
                         # watch_list[3]: a list of length n in which every entry
                         #     is a dictionary containing the following
@@ -44,7 +61,8 @@ class interLoop():
     def things(self):
         i = self.user_input.lower().split()
         if i[0] in self.watch_list[0]:
-
+            if len(i) > 1:
+                watch_list[]
 
 
     def stuff(self):
